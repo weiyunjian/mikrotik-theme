@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>auth</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta data-hid="description" name="description" content="auth,pppoe" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  </head>
+  <body>
+    <p>loading...</p>
+    <script src="./wyj-sdk.min.js"></script>
+    <script>
+      // { ip, mac, url, params, method }
+      function parseQuery(query) {
+        var list = {},
+          rc = query
+
+        rc &&
+          rc.split('&').forEach(function(query) {
+            var parts = query.split('=')
+            list[parts.shift().trim()] = decodeURIComponent(parts.join('='))
+          })
+
+        return list
+      }
+
+      var querys = parseQuery(location.search.slice(1))
+      var redirectUrl = querys.redirect
+      var urlQuery = querys.url.split('?')
+      var url = urlQuery[0]
+      // var query = parseQuery(urlQuery[1])
+
+      if (redirectUrl.indexOf('?')) {
+        redirectUrl += '&disableAutopass=1'
+      } else {
+        redirectUrl += '?disableAutopass=1'
+      }
+
+      $wyj.Portal.auth.vendors.http
+        .auth({ url, params: urlQuery[1] })
+        .then(function(res) {
+          location.href = decodeURIComponent(redirectUrl)
+        })
+        .catch(() => {
+          alert('Error')
+          location.href = decodeURIComponent(redirectUrl)
+        })
+    </script>
+  </body>
+</html>
